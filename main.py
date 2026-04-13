@@ -31,7 +31,6 @@ def load_matrices_from_file(filepath):
             if not data:
                 continue
 
-            print(data)
             matrices.append(identify_and_create_matrix(data))
 
         except ValueError as e:
@@ -49,8 +48,8 @@ def identify_and_create_matrix(data):
     
     # if Diagonal
     is_diagonal = True
-    for r in rows:
-        for c in cols:
+    for r in range(rows):
+        for c in range(cols):
             if r != c and data[r][c] != 0:
                 is_diagonal = False
                 break
@@ -60,11 +59,14 @@ def identify_and_create_matrix(data):
         # if Identity
         is_identity = all(data[i][i] == 1.0 for i in range(rows))
         if is_identity:
-            return IdentityMatrix(rows, data)
+            return IdentityMatrix(rows)
+        
         return DiagonalMatrix(rows, data)
     
     return SquareMatrix(rows, data)
     
 
 path = "./matrix.txt"
-load_matrices_from_file(path)
+matrices = load_matrices_from_file(path)
+
+print(matrices[0])
