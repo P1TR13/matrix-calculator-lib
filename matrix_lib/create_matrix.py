@@ -1,30 +1,94 @@
-from . import operations
+import matrix_lib.operations as operations
+
 
 class Matrix:
-    def __init__(self, rows, cols, data=None):
+    def __init__(self, rows=0, cols=0, data=None):
         self._rows = rows
         self._cols = cols
-        self.matrix = data
+        self._data = data
+        self.matrix = data if data is not None else []
+
+    @property
+    def data_for_calc(self):
+        return self.matrix
 
     def __str__(self):
         return "\n".join(" ".join(f"{el:6.2f}" for el in self.matrix[i]) for i in range(self._rows))
+    
+    def __add__(self, other):
+        if isinstance(other, Matrix):
+            return operations.matrix_add(self.data_for_calc, other.data_for_calc)
+        else:
+            raise TypeError(f"Can't add {type(other)}")
+    
+    def __sub__(self, other):
+        if isinstance(other, Matrix):
+            return operations.matrix_sub(self.data_for_calc, other.data_for_calc)
+        else:
+            raise TypeError(f"Can't subtract {type(other)}")
+    
+    def __mul__(self, other):
+        if isinstance(other, Matrix):
+            return operations.matrix_mul(self.data_for_calc, other.data_for_calc)
 
+        elif isinstance(other, (int, float)):
+            return operations.scalar_mul(self.data_for_calc, other)
+
+        else:
+            raise TypeError(f"Can't multiply by {type(other)}")
+        
+    def __rmul__(self, other):
+        return self.__mul__(other)
+    
+    def __eq__(self, other):
+        if not isinstance(other, Matrix):
+            return False
+        if self._rows != other._rows or self._cols != other._cols:
+            return False
+        epsilon = 1e-9
+        for i in range(self._rows):
+            for j in range(self._cols):
+                if abs(self.matrix[i][j] - other.matrix[i][j]) > epsilon:
+                    return False
+        return True
+    
+    def transposition(self):
+        return Matrix(self._rows, self._cols, operations.transposition(self.data_for_calc))
+    
+    def determinant(self):
+        return None
+    
 
 class SquareMatrix(Matrix):
     def __init__(self, size, data=None):
-        self._rows = size
-        self.matrix = data
+        super().__init__(size, size, data)
+
+    def transposition(self):
+        return SquareMatrix(self._rows, operations.transposition(self.data_for_calc))
+    
+    def determinant(self):
+        return operations.determinant(self.data_for_calc)
+    
+    def inverse(self):
+        if self.determinant() == 0:
+            raise ValueError("Singular matrix — inverse does not exist")
+        return None  # Placeholder for inverse calculation
 
 
 class DiagonalMatrix(SquareMatrix):
     def __init__(self, size, data=None):
-        self._rows = size
         if data is None:
-            self.matrix = [0.0] * size
+            diag = [0.0] * size
         elif isinstance(data[0], list):
-            self.matrix = [float(data[i][i]) for i in range(size)]
+            diag = [float(data[i][i]) for i in range(size)]
         else:
-            self.matrix = [float(x) for x in data]
+            diag = [float(x) for x in data]
+
+        super().__init__(size, diag)
+
+    @property
+    def data_for_calc(self):
+        return [[self.matrix[i] if i == j else 0.0 for j in range(self._rows)] for i in range(self._rows)]
 
     def __str__(self):
         lines = []
@@ -37,9 +101,32 @@ class DiagonalMatrix(SquareMatrix):
                     row.append(f"{0.0:6.2f}")
             lines.append("  ".join(row))
         return "\n".join(lines)
+    
+    def transposition(self):
+        return DiagonalMatrix(self._rows, self.matrix)
+    
+    def determinant(self):
+        det = 1.0
+        for i in range(self._rows):
+            det *= self.matrix[i]
+        return det
+    
+    def inverse(self):
+        if any(x == 0 for x in self.matrix):
+            raise ValueError("Singular matrix — inverse does not exist")
+        inv_diag = [1.0 / x for x in self.matrix]
+        return DiagonalMatrix(self._rows, inv_diag)
 
 
 class IdentityMatrix(DiagonalMatrix):
     def __init__(self, size):
-        self._rows = size
-        self.matrix = [1.0 for _ in range(self._rows)]
+        super().__init__(size, [1.0 for _ in range(size)])
+
+    def transposition(self):
+        return IdentityMatrix(self._rows)
+    
+    def determinant(self):
+        return 1.0
+    
+    def inverse(self):
+        return IdentityMatrix(self._rows)
