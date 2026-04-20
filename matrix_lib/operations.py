@@ -49,3 +49,24 @@ def determinant(matrix):
             submatrix = [row[:col] + row[col+1:] for row in matrix[1:]]
             det += ((-1) ** col) * matrix[0][col] * determinant(submatrix)
         return det
+
+def inverse(matrix):
+    if (determinant(matrix) == 0):
+        raise ValueError("Singular matrix — inverse does not exist")
+    size = len(matrix)
+    if size == 1:
+        return [[1.0 / matrix[0][0]]]
+    elif size == 2:
+        det = determinant(matrix)
+        return [[matrix[1][1] / det, -matrix[0][1] / det],
+                [-matrix[1][0] / det, matrix[0][0] / det]]
+    else:
+        cofactors = []
+        for row in range(size):
+            cofactor_row = []
+            for col in range(size):
+                submatrix = [r[:col] + r[col+1:] for r in matrix[:row] + matrix[row+1:]]
+                cofactor_row.append(((-1) ** (row + col)) * determinant(submatrix))
+            cofactors.append(cofactor_row)
+        cofactors_T = transposition(cofactors)
+        return [[cofactors_T[i][j] / determinant(matrix) for j in range(size)] for i in range(size)]

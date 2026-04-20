@@ -58,6 +58,9 @@ class Matrix:
     def determinant(self):
         return None
     
+    def inverse(self):
+        return None
+    
 
 class SquareMatrix(Matrix):
     def __init__(self, size, data=None):
@@ -72,7 +75,8 @@ class SquareMatrix(Matrix):
     def inverse(self):
         if self.determinant() == 0:
             raise ValueError("Singular matrix — inverse does not exist")
-        return None  # Placeholder for inverse calculation
+        inv_data = operations.inverse(self.data_for_calc)
+        return SquareMatrix(self._rows, inv_data)
 
 
 class DiagonalMatrix(SquareMatrix):
