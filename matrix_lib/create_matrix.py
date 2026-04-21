@@ -1,4 +1,16 @@
 import matrix_lib.operations as operations
+import matrix_lib.solving as solving
+
+
+def safe_operation(func):
+    """Dekorator obsługujący błędy w operatorach - zwraca None zamiast rzucić wyjątek"""
+    def wrapper(self, other):
+        try:
+            return func(self, other)
+        except (TypeError, ValueError) as e:
+            print(f"Error in {func.__name__}: {e}")
+            return None
+    return wrapper
 
 
 class Matrix:
@@ -6,7 +18,10 @@ class Matrix:
         self._rows = rows
         self._cols = cols
         self._data = data
-        self.matrix = data if data is not None else []
+        if data is not None:
+            self.matrix = [[float(el) for el in row] for row in data]
+        else:
+            self.matrix = []
 
     @property
     def data_for_calc(self):
@@ -15,28 +30,32 @@ class Matrix:
     def __str__(self):
         return "\n".join(" ".join(f"{el:6.2f}" for el in self.matrix[i]) for i in range(self._rows))
     
+    @safe_operation
     def __add__(self, other):
-        if isinstance(other, Matrix):
-            return operations.matrix_add(self.data_for_calc, other.data_for_calc)
-        else:
-            raise TypeError(f"Can't add {type(other)}")
+        if not isinstance(other, Matrix):
+            raise TypeError(f"Can't add Matrix with {type(other).__name__}")
+        result = operations.matrix_add(self.data_for_calc, other.data_for_calc)
+        return Matrix(self._rows, self._cols, result)
     
+    @safe_operation
     def __sub__(self, other):
-        if isinstance(other, Matrix):
-            return operations.matrix_sub(self.data_for_calc, other.data_for_calc)
-        else:
-            raise TypeError(f"Can't subtract {type(other)}")
+        if not isinstance(other, Matrix):
+            raise TypeError(f"Can't subtract Matrix with {type(other).__name__}")
+        result = operations.matrix_sub(self.data_for_calc, other.data_for_calc)
+        return Matrix(self._rows, self._cols, result)
     
+    @safe_operation
     def __mul__(self, other):
         if isinstance(other, Matrix):
-            return operations.matrix_mul(self.data_for_calc, other.data_for_calc)
-
+            result = operations.matrix_mul(self.data_for_calc, other.data_for_calc)
+            return Matrix(self._rows, other._cols, result)
         elif isinstance(other, (int, float)):
-            return operations.scalar_mul(self.data_for_calc, other)
-
+            result = operations.scalar_mul(self.data_for_calc, other)
+            return Matrix(self._rows, self._cols, result)
         else:
-            raise TypeError(f"Can't multiply by {type(other)}")
+            raise TypeError(f"Can't multiply Matrix by {type(other).__name__}")
         
+    @safe_operation
     def __rmul__(self, other):
         return self.__mul__(other)
     
@@ -61,6 +80,9 @@ class Matrix:
     def inverse(self):
         return None
     
+    def solve(self, b):
+        return None
+    
 
 class SquareMatrix(Matrix):
     def __init__(self, size, data=None):
@@ -77,6 +99,11 @@ class SquareMatrix(Matrix):
             raise ValueError("Singular matrix — inverse does not exist")
         inv_data = operations.inverse(self.data_for_calc)
         return SquareMatrix(self._rows, inv_data)
+    def solve(self, b):
+        if self.determinant() == 0:
+            raise ValueError("Singular matrix — can't solve")
+        solving.Gauss(self.data_for_calc, b)
+        return None
 
 
 class DiagonalMatrix(SquareMatrix):
@@ -88,7 +115,8 @@ class DiagonalMatrix(SquareMatrix):
         else:
             diag = [float(x) for x in data]
 
-        super().__init__(size, diag)
+        super().__init__(size, None)
+        self.matrix = diag
 
     @property
     def data_for_calc(self):

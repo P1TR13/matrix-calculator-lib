@@ -10,9 +10,9 @@ def test_add():
     print(m1 - m2)
     print(m2 - m1)
     print(m1 * m2)
+    print(m1 + 'a')
+    print(m1 + m2 + m1)
     
-    print(m1 + "a")
-    print(m1 - "a")
-    
+
 if __name__ == "__main__":
     test_add()
