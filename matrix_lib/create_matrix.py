@@ -3,7 +3,6 @@ import matrix_lib.solving as solving
 
 
 def safe_operation(func):
-    """Dekorator obsługujący błędy w operatorach - zwraca None zamiast rzucić wyjątek"""
     def wrapper(self, other):
         try:
             return func(self, other)
@@ -99,12 +98,11 @@ class SquareMatrix(Matrix):
             raise ValueError("Singular matrix — inverse does not exist")
         inv_data = operations.inverse(self.data_for_calc)
         return SquareMatrix(self._rows, inv_data)
+    
     def solve(self, b):
         if self.determinant() == 0:
             raise ValueError("Singular matrix — can't solve")
-        solving.Gauss(self.data_for_calc, b)
-        return None
-
+        return solving.Gauss(self.data_for_calc, b)
 
 class DiagonalMatrix(SquareMatrix):
     def __init__(self, size, data=None):
