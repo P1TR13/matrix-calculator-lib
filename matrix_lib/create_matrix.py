@@ -100,9 +100,18 @@ class SquareMatrix(Matrix):
         return SquareMatrix(self._rows, inv_data)
     
     def solve(self, b):
-        if self.determinant() == 0:
-            raise ValueError("Singular matrix — can't solve")
-        return solving.Gauss(self.data_for_calc, b)
+        result = solving.Gauss(self.data_for_calc, b)
+        
+        if isinstance(result, dict) and 'error' in result:
+            error_type = result['error']
+            if error_type == 'no_solution':
+                print("No solution")
+                return None
+            elif error_type == 'infinite_solutions':
+                print("Infinite solutions")
+                return None
+        
+        return result
 
 class DiagonalMatrix(SquareMatrix):
     def __init__(self, size, data=None):

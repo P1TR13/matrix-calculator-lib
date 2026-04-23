@@ -10,6 +10,7 @@ def test_print():
     m_empty = Matrix()
 
     print(m_empty)
+    print()
     print(m)
     print()
     print(m_i)
