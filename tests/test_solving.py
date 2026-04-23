@@ -59,15 +59,6 @@ def test_solving():
         [2, 4, 6],
         [3, 6, 9]
     ])
-    b = [5, 10, 15]
-    print(A.solve(b))
-
-    # singular matrix
-    A = SquareMatrix(3, [
-        [1, 2, 3],
-        [2, 4, 6],
-        [3, 6, 9]
-    ])
     b = [5, 10, 20]
     print(A.solve(b))
 
@@ -78,6 +69,13 @@ def test_solving():
         [3, 6, 9]
     ])
     b = [5, 10, 15]
+    print(A.solve(b))
+
+    A = SquareMatrix(2, [
+        [1, 1],
+        [2, 2]
+    ])
+    b = [2, 10]
     print(A.solve(b))
 
     

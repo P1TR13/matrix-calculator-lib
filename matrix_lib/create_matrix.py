@@ -105,12 +105,9 @@ class SquareMatrix(Matrix):
         if isinstance(result, dict) and 'error' in result:
             error_type = result['error']
             if error_type == 'no_solution':
-                print("No solution")
-                return None
+                return "No solution"
             elif error_type == 'infinite_solutions':
-                print("Infinite solutions")
-                return None
-        
+                return "Infinite solutions"
         return result
 
 class DiagonalMatrix(SquareMatrix):
