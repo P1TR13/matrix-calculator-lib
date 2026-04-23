@@ -1,5 +1,6 @@
 from matrix_lib import Matrix, SquareMatrix, DiagonalMatrix, IdentityMatrix
 
+print_matrix_info = lambda matrix: (print(matrix), print())
 
 def test_print():
     m = Matrix(2, 2, [[1, 2], [3, 4]])
@@ -9,17 +10,12 @@ def test_print():
     m_s = SquareMatrix(3, [[5, 6, 7], [100, 20, 23], [-5, 0, 0]])
     m_empty = Matrix()
 
-    print(m_empty)
-    print()
-    print(m)
-    print()
-    print(m_i)
-    print()
-    print(m_d)
-    print()
-    print(m_d2)
-    print()
-    print(m_s)
+    print_matrix_info(m_empty)
+    print_matrix_info(m)
+    print_matrix_info(m_i)
+    print_matrix_info(m_d)
+    print_matrix_info(m_d2)
+    print_matrix_info(m_s)
 
 if __name__ == "__main__":
     test_print()
